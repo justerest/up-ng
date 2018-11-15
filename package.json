@@ -1,6 +1,6 @@
 {
   "name": "@justerest/up-ng",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "upgrade AngularJS component syntax",
   "bin": {
     "up-ng": "dist/index.js"
