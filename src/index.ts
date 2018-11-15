@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import chalk from 'chalk';
 import { from } from 'rxjs';
 import { finalize, mergeMap } from 'rxjs/operators';
