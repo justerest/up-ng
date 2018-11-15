@@ -6,10 +6,10 @@ CLI to upgrade ng-metadata + AngularJS (*.html, *.ts)
 
 ```bash
 # Use without installation
-npx up-ng [--options] <...paths>
+npx @justerest/up-ng [--options] <...paths>
 
 # or install globally and use
-npm i -g up-ng
+npm i -g @justerest/up-ng
 up-ng [--options] <...paths>
 ```
 

@@ -1,8 +1,10 @@
 {
-  "name": "up-ng",
+  "name": "@justerest/up-ng",
   "version": "1.0.0",
   "description": "upgrade AngularJS component syntax",
-  "bin": "dist/index.js",
+  "bin": {
+    "up-ng": "dist/index.js"
+  },
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p .",
