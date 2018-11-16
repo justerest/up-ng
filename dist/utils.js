@@ -13,16 +13,32 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
-function add(key, operator) {
-    var tmp;
-    return rxjs_1.pipe(operators_1.tap(function (scope) { return tmp = scope; }), operator, operators_1.map(function (response) {
+function set(key, fn) {
+    return function (scope) { return rxjs_1.from(fn(scope)).pipe(operators_1.map(function (response) {
         var _a;
-        return (__assign({}, tmp, (_a = {}, _a[key] = response, _a)));
-    }));
+        return (__assign({}, scope, (_a = {}, _a[key] = response, _a)));
+    })); };
+}
+exports.set = set;
+function add(key, fn) {
+    return function (scope) {
+        var _a;
+        return (__assign({}, scope, (_a = {}, _a[key] = fn(scope), _a)));
+    };
 }
 exports.add = add;
-function omit(operator) {
-    var tmp;
-    return rxjs_1.pipe(operators_1.tap(function (scope) { return tmp = scope; }), operator, operators_1.map(function () { return tmp; }));
+function omit(fn) {
+    return function (scope) { return rxjs_1.from(fn(scope)).pipe(operators_1.mapTo(scope)); };
 }
 exports.omit = omit;
+function pick() {
+    var keys = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        keys[_i] = arguments[_i];
+    }
+    return function (scope) { return keys.reduce(function (res, key) {
+        res[key] = scope[key];
+        return res;
+    }, {}); };
+}
+exports.pick = pick;

@@ -36,31 +36,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_extra_1 = require("fs-extra");
-var transformHtml_1 = require("./transformHtml");
-var transformTs_1 = require("./transformTs");
-var writer_1 = require("./writer");
-function upgrade(filePath, outFilePath) {
+var path_1 = require("path");
+var options_1 = require("./options");
+exports.writer = options_1.OPTIONS.out || options_1.OPTIONS.replace ? writeForce : writeSafe;
+function writeForce(path, data) {
     return __awaiter(this, void 0, void 0, function () {
-        var text, transformer, data, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, fs_extra_1.readFile(filePath, 'UTF-8')];
+                case 0: return [4 /*yield*/, fs_extra_1.ensureDir(path_1.dirname(path))];
                 case 1:
-                    text = _a.sent();
-                    transformer = /ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
-                    data = transformer(text);
-                    return [4 /*yield*/, writer_1.writer(outFilePath, data)];
-                case 2: return [2 /*return*/, _a.sent()];
-                case 3:
-                    e_1 = _a.sent();
-                    console.error(filePath, outFilePath);
-                    console.error(e_1);
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
+                    _a.sent();
+                    return [4 /*yield*/, fs_extra_1.writeFile(path, data)];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
             }
         });
     });
 }
-exports.upgrade = upgrade;
+function writeSafe(path, data) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fs_extra_1.writeFile(path + ".tmp", data)];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, backupFile(path)];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, fs_extra_1.rename(path + ".tmp", path)];
+                case 3:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function backupFile(path) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fs_extra_1.rename(path, path.replace(/\.(\w+)$/, '.old.$1'))];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
