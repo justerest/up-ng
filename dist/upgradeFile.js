@@ -39,36 +39,30 @@ var fs_extra_1 = require("fs-extra");
 var path_1 = require("path");
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
-var options_1 = require("./options");
 var transformHtml_1 = require("./transformHtml");
 var transformTs_1 = require("./transformTs");
-function upgradeFile(path) {
-    return rxjs_1.from(fs_extra_1.readFile(path, 'UTF-8')).pipe(operators_1.map(function (data) { return /ts$/.test(path) ? transformTs_1.transformTs(data) : transformHtml_1.transformHtml(data); }), operators_1.switchMap(function (data) { return recordFile(path, data); }));
+var utils_1 = require("./utils");
+function upgradeFile(options) {
+    return rxjs_1.of({}).pipe(operators_1.mergeMap(utils_1.set('text', function () { return fs_extra_1.readFile(options.filePath, 'UTF-8'); })), operators_1.map(utils_1.add('transformedText', function (s) { return /ts$/.test(options.filePath) ? transformTs_1.transformTs(s.text) : transformHtml_1.transformHtml(s.text); })), operators_1.map(utils_1.add('outPath', function () { return resolveOutPath(options.filePath, options.out); })), operators_1.map(utils_1.add('recorder', function () { return options.out || options.replace ? forceRecord : safeRecord; })), operators_1.mergeMap(utils_1.omit(function (s) { return s.recorder(s.outPath, s.transformedText); })), operators_1.map(function (s) { return s.outPath; }));
 }
 exports.upgradeFile = upgradeFile;
-function recordFile(path, data) {
-    return options_1.OUTDIR || options_1.REPLACE ? forceRecord(path, data) : safeRecord(path, data);
+function resolveOutPath(path, out) {
+    return out ? path_1.resolve(out, path.replace(/^(\.\.\/)+/, '')) : path;
 }
 function forceRecord(path, data) {
     return __awaiter(this, void 0, void 0, function () {
-        var outPath;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    outPath = resolveOutPath(path);
-                    return [4 /*yield*/, fs_extra_1.ensureDir(path_1.dirname(outPath))];
+                case 0: return [4 /*yield*/, fs_extra_1.ensureDir(path_1.dirname(path))];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, fs_extra_1.writeFile(outPath, data)];
+                    return [4 /*yield*/, fs_extra_1.writeFile(path, data)];
                 case 2:
                     _a.sent();
                     return [2 /*return*/];
             }
         });
     });
-}
-function resolveOutPath(path) {
-    return options_1.OUTDIR ? path_1.resolve(options_1.OUTDIR, path.replace(/^(\.\.\/)+/, '')) : path;
 }
 function safeRecord(path, data) {
     return __awaiter(this, void 0, void 0, function () {

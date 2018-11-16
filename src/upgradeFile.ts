@@ -1,30 +1,29 @@
 import { ensureDir, readFile, rename, writeFile } from 'fs-extra';
 import { dirname, resolve } from 'path';
-import { from, Observable, ObservableInput } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
-import { OUTDIR, REPLACE } from './options';
+import { Observable, of } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 import { transformHtml } from './transformHtml';
 import { transformTs } from './transformTs';
+import { add, omit, set } from './utils';
 
-export function upgradeFile(path: string): Observable<void> {
-    return from(readFile(path, 'UTF-8')).pipe(
-        map((data) => /ts$/.test(path) ? transformTs(data) : transformHtml(data)),
-        switchMap((data) => recordFile(path, data)),
+export function upgradeFile(options: { filePath: string; out: string; replace: boolean }): Observable<string> {
+    return of({}).pipe(
+        mergeMap(set('text', () => readFile(options.filePath, 'UTF-8'))),
+        map(add('transformedText', (s) => /ts$/.test(options.filePath) ? transformTs(s.text) : transformHtml(s.text))),
+        map(add('outPath', () => resolveOutPath(options.filePath, options.out))),
+        map(add('recorder', () => options.out || options.replace ? forceRecord : safeRecord)),
+        mergeMap(omit((s) => s.recorder(s.outPath, s.transformedText))),
+        map((s) => s.outPath),
     );
 }
 
-function recordFile(path: string, data: string): ObservableInput<void> {
-    return OUTDIR || REPLACE ? forceRecord(path, data) : safeRecord(path, data);
+function resolveOutPath(path: string, out: string): string {
+    return out ? resolve(out, path.replace(/^(\.\.\/)+/, '')) : path;
 }
 
 async function forceRecord(path: string, data: string): Promise<void> {
-    const outPath = resolveOutPath(path);
-    await ensureDir(dirname(outPath));
-    await writeFile(outPath, data);
-}
-
-function resolveOutPath(path: string) {
-    return OUTDIR ? resolve(OUTDIR, path.replace(/^(\.\.\/)+/, '')) : path;
+    await ensureDir(dirname(path));
+    await writeFile(path, data);
 }
 
 async function safeRecord(path: string, data: string): Promise<void> {
