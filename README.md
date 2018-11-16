@@ -1,20 +1,15 @@
-# UP-NG
+# up-ng
 
 CLI to upgrade ng-metadata + AngularJS (*.html, *.ts)
 
 ## Usage
 
 ```bash
-# Use without installation
-npx @justerest/up-ng [--options] <...paths>
-
-# or install globally and use
 npm i -g @justerest/up-ng
 up-ng [--options] <...paths>
 ```
 
-By default `up-ng` make backup for current files (`'*.old.*'`) and replace its with transformed data.
-
+By default `up-ng` make backup for current files (`'*.old.*'`) and replace its with transformed data.  
 To save files to a new directory use `--out` option.
 
 ## Options
