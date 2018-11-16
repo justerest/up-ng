@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import commandLineArgs = require('command-line-args');
+import { resolve } from 'path';
 import { of } from 'rxjs';
-import { finalize, mergeMap } from 'rxjs/operators';
+import { finalize, map, mergeMap } from 'rxjs/operators';
 import { getFileList } from './getFileList';
 import { upgradeFile } from './upgradeFile';
-import { set } from './utils';
+import { add, omit } from './utils';
 
 interface Options {
     paths: string[];
@@ -22,13 +23,15 @@ interface Options {
 
     of(options)
         .pipe(
-            mergeMap(set('filePath', (s) => getFileList(s))),
-            mergeMap(set('outPath', (s) => upgradeFile(s))),
+            add('filePath', mergeMap(({ paths }) => getFileList({ paths }))),
+            add('outFilePath', map((s) => s.out ? resolve(s.out, s.filePath.replace(/^(\.\.\/)+/, '')) : s.filePath)),
+            add('force', map((s) => !!(s.out || s.filePath))),
+            omit(mergeMap(({ filePath, outFilePath, force }) => upgradeFile({ filePath, outFilePath, force }))),
             finalize(() => console.log(`\n${chalk.bgCyan(chalk.bold(' FINISH '))}\n`)),
         )
         .subscribe((s) => {
             console.log();
             console.log(chalk.greenBright(' UPGRADE '), chalk.yellow(s.filePath), '->');
-            console.log(chalk.yellowBright(s.outPath));
+            console.log(chalk.yellowBright(s.outFilePath));
         });
 })();

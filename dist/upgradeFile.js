@@ -43,12 +43,9 @@ var transformHtml_1 = require("./transformHtml");
 var transformTs_1 = require("./transformTs");
 var utils_1 = require("./utils");
 function upgradeFile(options) {
-    return rxjs_1.of({}).pipe(operators_1.mergeMap(utils_1.set('text', function () { return fs_extra_1.readFile(options.filePath, 'UTF-8'); })), operators_1.map(utils_1.add('transformedText', function (s) { return /ts$/.test(options.filePath) ? transformTs_1.transformTs(s.text) : transformHtml_1.transformHtml(s.text); })), operators_1.map(utils_1.add('outPath', function () { return resolveOutPath(options.filePath, options.out); })), operators_1.map(utils_1.add('recorder', function () { return options.out || options.replace ? forceRecord : safeRecord; })), operators_1.mergeMap(utils_1.omit(function (s) { return s.recorder(s.outPath, s.transformedText); })), operators_1.map(function (s) { return s.outPath; }));
+    return rxjs_1.of(options).pipe(utils_1.add('text', operators_1.mergeMap(function (s) { return fs_extra_1.readFile(s.filePath, 'UTF-8'); })), utils_1.add('transformedText', operators_1.map(function (s) { return /ts$/.test(s.filePath) ? transformTs_1.transformTs(s.text) : transformHtml_1.transformHtml(s.text); })), utils_1.add('record', operators_1.map(function (s) { return s.force ? forceRecord : safeRecord; })), utils_1.omit(operators_1.mergeMap(function (s) { return s.record(s.outFilePath, s.transformedText); })), operators_1.mapTo(null));
 }
 exports.upgradeFile = upgradeFile;
-function resolveOutPath(path, out) {
-    return out ? path_1.resolve(out, path.replace(/^(\.\.\/)+/, '')) : path;
-}
 function forceRecord(path, data) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {

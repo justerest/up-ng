@@ -2,15 +2,15 @@ import { existsSync, lstat } from 'fs';
 import glob = require('glob');
 import { bindNodeCallback, Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { add, set } from './utils';
+import { add } from './utils';
 
 export function getFileList(options: { paths: string[] }): Observable<string> {
     return of(options).pipe(
-        mergeMap(set('path', (s) => s.paths)),
-        map(add('isExist', (s) => existsSync(s.path))),
-        mergeMap(set('isDir', (s) => s.isExist ? checkDir(s.path) : of(false))),
-        map(add('getPattern', (s) => s.isDir ? getDirPattern : getComponentPattern)),
-        map(add('pattern', (s) => s.getPattern(s.path))),
+        add('path', mergeMap((s) => s.paths)),
+        add('isExist', map((s) => existsSync(s.path))),
+        add('isDir', mergeMap((s) => s.isExist ? checkDir(s.path) : of(false))),
+        add('getPattern', map((s) => s.isDir ? getDirPattern : getComponentPattern)),
+        add('pattern', map((s) => s.getPattern(s.path))),
         mergeMap((s) => globByPattern(s.pattern)),
     );
 }
