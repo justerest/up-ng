@@ -6,7 +6,7 @@ interface Options {
     replace: boolean;
 }
 
-export const { paths: PATHS, out: OUTDIR, replace: REPLACE } = commandLineArgs([
+export const OPTIONS = commandLineArgs([
     { name: 'paths', multiple: true, defaultOption: true, defaultValue: [] },
     { name: 'out', alias: 'o', type: String, defaultValue: '' },
     { name: 'replace', type: Boolean, defaultValue: false },

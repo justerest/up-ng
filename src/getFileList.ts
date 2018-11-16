@@ -1,33 +1,26 @@
-import { lstat, pathExists } from 'fs-extra';
+import { existsSync, lstat } from 'fs';
 import glob = require('glob');
-import { from, Observable } from 'rxjs';
-import { defaultIfEmpty, filter, map, mergeAll, switchMap } from 'rxjs/operators';
+import { bindNodeCallback, from, Observable } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 
-export function getFileList(path: string): Observable<string> {
-    return getPattern(path).pipe(
-        switchMap(globFiles),
-        mergeAll(),
+export function getFileList$(path: string): Observable<string> {
+    return from(getFileList(path)).pipe(
+        mergeMap((filePaths) => filePaths),
     );
 }
 
-function globFiles(pattern: string): Promise<string[]> {
-    return new Promise((res) => glob(pattern, { nodir: true }, (_, matches) => res(matches)));
+async function getFileList(path: string): Promise<string[]> {
+    const isDir = existsSync(path) && await checkDir(path);
+    const pattern = isDir
+        ? `${path}/**/*.component.?(ts|html)`
+        : /(\.\w{2,4})$/.test(path) ? path : `${path}.?(ts|html)`;
+    return getAllFiles(pattern);
 }
 
-function getPattern(path: string): Observable<string> {
-    return from(pathExists(path)).pipe(
-        filter(Boolean),
-        switchMap(() => lstat(path)),
-        map((stat) => stat.isDirectory()),
-        defaultIfEmpty(false),
-        map((isDir) => isDir ? dirPattern(path) : componentPattern(path)),
-    );
+function checkDir(path: string): Promise<boolean> {
+    return bindNodeCallback(lstat)(path).pipe(map((stat) => stat.isDirectory())).toPromise();
 }
 
-function dirPattern(path: string): string {
-    return `${path}/**/*.component.?(ts|html)`;
-}
-
-function componentPattern(path: string): string {
-    return /(\.\w{2,4})$/.test(path) ? path : `${path}.?(ts|html)`;
+function getAllFiles(pattern: string): Promise<string[]> {
+    return bindNodeCallback<string, glob.IOptions, string[]>(glob)(pattern, { nodir: true }).toPromise();
 }
