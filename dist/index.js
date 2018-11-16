@@ -6,7 +6,7 @@ var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
 var getFileList_1 = require("./getFileList");
 var options_1 = require("./options");
-var resolveOutPath_1 = require("./resolveOutPath");
+var resolve_1 = require("./resolve");
 var upgradeFile_1 = require("./upgradeFile");
 var utils_1 = require("./utils");
 rxjs_1.from(options_1.OPTIONS.paths)
@@ -15,10 +15,10 @@ rxjs_1.from(options_1.OPTIONS.paths)
     return getFileList_1.getFileList$(pattern);
 })), operators_1.map(utils_1.add('outFilePath', function (_a) {
     var filePath = _a.filePath;
-    return resolveOutPath_1.resolver(filePath);
+    return resolve_1.resolve(filePath);
 })), operators_1.mergeMap(utils_1.omit(function (_a) {
     var filePath = _a.filePath, outFilePath = _a.outFilePath;
-    return upgradeFile_1.upgrade(filePath, outFilePath);
+    return upgradeFile_1.upgradeFile(filePath, outFilePath);
 })), operators_1.finalize(function () { return console.log("\n" + chalk_1.default.bgCyan(chalk_1.default.bold(' FINISH ')) + "\n"); }))
     .subscribe(function (_a) {
     var filePath = _a.filePath, outFilePath = _a.outFilePath;

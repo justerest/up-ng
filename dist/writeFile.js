@@ -38,8 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs_extra_1 = require("fs-extra");
 var path_1 = require("path");
 var options_1 = require("./options");
-exports.writer = options_1.OPTIONS.out || options_1.OPTIONS.replace ? writeForce : writeSafe;
-function writeForce(path, data) {
+exports.writeFile = options_1.OPTIONS.out || options_1.OPTIONS.replace ? writeFileForce : writeFileSafe;
+function writeFileForce(path, data) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -54,7 +54,7 @@ function writeForce(path, data) {
         });
     });
 }
-function writeSafe(path, data) {
+function writeFileSafe(path, data) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {

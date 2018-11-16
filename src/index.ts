@@ -4,16 +4,16 @@ import { from } from 'rxjs';
 import { finalize, map, mergeMap } from 'rxjs/operators';
 import { getFileList$ } from './getFileList';
 import { OPTIONS } from './options';
-import { resolver } from './resolveOutPath';
-import { upgrade } from './upgradeFile';
+import { resolve } from './resolve';
+import { upgradeFile } from './upgradeFile';
 import { add, omit, set } from './utils';
 
 from(OPTIONS.paths)
     .pipe(
         map((pattern) => ({ pattern })),
         mergeMap(set('filePath', ({ pattern }) => getFileList$(pattern))),
-        map(add('outFilePath', ({ filePath }) => resolver(filePath))),
-        mergeMap(omit(({ filePath, outFilePath }) => upgrade(filePath, outFilePath))),
+        map(add('outFilePath', ({ filePath }) => resolve(filePath))),
+        mergeMap(omit(({ filePath, outFilePath }) => upgradeFile(filePath, outFilePath))),
         finalize(() => console.log(`\n${chalk.bgCyan(chalk.bold(' FINISH '))}\n`)),
     )
     .subscribe(({ filePath, outFilePath }) => {

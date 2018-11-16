@@ -38,8 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs_extra_1 = require("fs-extra");
 var transformHtml_1 = require("./transformHtml");
 var transformTs_1 = require("./transformTs");
-var writer_1 = require("./writer");
-function upgrade(filePath, outFilePath) {
+var writeFile_1 = require("./writeFile");
+function upgradeFile(filePath, outFilePath) {
     return __awaiter(this, void 0, void 0, function () {
         var text, transformer, data, e_1;
         return __generator(this, function (_a) {
@@ -51,7 +51,7 @@ function upgrade(filePath, outFilePath) {
                     text = _a.sent();
                     transformer = /ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
                     data = transformer(text);
-                    return [4 /*yield*/, writer_1.writer(outFilePath, data)];
+                    return [4 /*yield*/, writeFile_1.writeFile(outFilePath, data)];
                 case 2: return [2 /*return*/, _a.sent()];
                 case 3:
                     e_1 = _a.sent();
@@ -63,4 +63,4 @@ function upgrade(filePath, outFilePath) {
         });
     });
 }
-exports.upgrade = upgrade;
+exports.upgradeFile = upgradeFile;
