@@ -7,11 +7,13 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "rm -R ./dist && tsc -p .",
+    "build:commit": "npm run build && git add ./dist",
     "start": "node dist/index.js",
     "start:dev": "npm run build && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "pre-commit": ["build:commit"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justerest/up-ng.git"
@@ -35,6 +37,7 @@
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
     "@types/node": "^10.12.7",
+    "pre-commit": "^1.2.2",
     "tslint": "^5.11.0",
     "typescript": "^3.1.6"
   }
