@@ -6,11 +6,11 @@ import { getFileList$ } from './getFileList';
 import { OPTIONS } from './options';
 import { resolve } from './resolve';
 import { upgradeFile } from './upgradeFile';
-import { add, omit, set } from './utils';
+import { add, init, omit, set } from './utils';
 
 from(OPTIONS.paths)
     .pipe(
-        map((pattern) => ({ pattern })),
+        init('pattern'),
         mergeMap(set('filePath', ({ pattern }) => getFileList$(pattern))),
         map(add('outFilePath', ({ filePath }) => resolve(filePath))),
         mergeMap(omit(({ filePath, outFilePath }) => upgradeFile(filePath, outFilePath))),

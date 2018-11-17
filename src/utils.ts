@@ -1,6 +1,10 @@
 import { from, Observable, ObservableInput } from 'rxjs';
 import { map, mapTo } from 'rxjs/operators';
 
+export function init<T, K extends string>(key: K) {
+    return map((data: T) => ({ [key]: data }) as { [P in K]: T });
+}
+
 export function set<T extends object, R, K extends string>(
     key: K extends keyof T ? never : K,
     fn: (scope: T) => ObservableInput<R>,
