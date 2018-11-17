@@ -10,9 +10,9 @@ var resolve_1 = require("./resolve");
 var upgradeFile_1 = require("./upgradeFile");
 var utils_1 = require("./utils");
 rxjs_1.from(options_1.OPTIONS.paths)
-    .pipe(utils_1.init('pattern'), operators_1.mergeMap(utils_1.set('filePath', function (_a) {
+    .pipe(utils_1.scope('pattern'), operators_1.mergeMap(utils_1.set('filePath', function (_a) {
     var pattern = _a.pattern;
-    return getFileList_1.getFileList$(pattern);
+    return getFileList_1.getFileList(pattern);
 })), operators_1.map(utils_1.add('outFilePath', function (_a) {
     var filePath = _a.filePath;
     return resolve_1.resolve(filePath);

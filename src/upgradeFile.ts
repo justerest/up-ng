@@ -3,10 +3,10 @@ import { transformHtml } from './transformHtml';
 import { transformTs } from './transformTs';
 import { writeFile } from './writeFile';
 
-export async function upgradeFile(filePath: string, outFilePath: string) {
+export async function upgradeFile(filePath: string, outFilePath: string): Promise<void> {
     try {
         const text = await readFile(filePath, 'UTF-8');
-        const transformer = /ts$/.test(filePath) ? transformTs : transformHtml;
+        const transformer = /\.ts$/.test(filePath) ? transformTs : transformHtml;
         const data = transformer(text);
         return await writeFile(outFilePath, data);
     }

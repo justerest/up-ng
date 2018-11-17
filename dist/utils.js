@@ -14,28 +14,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-line-length
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
-function init(key) {
+function scope(key) {
     return operators_1.map(function (data) {
         var _a;
         return (_a = {}, _a[key] = data, _a);
     });
 }
-exports.init = init;
+exports.scope = scope;
 function set(key, fn) {
-    return function (scope) { return rxjs_1.from(fn(scope)).pipe(operators_1.map(function (response) {
+    return function (state) { return rxjs_1.from(fn(state)).pipe(operators_1.map(function (response) {
         var _a;
-        return (__assign({}, scope, (_a = {}, _a[key] = response, _a)));
+        return (__assign({}, state, (_a = {}, _a[key] = response, _a)));
     })); };
 }
 exports.set = set;
 function add(key, fn) {
-    return function (scope) {
+    return function (state) {
         var _a;
-        return (__assign({}, scope, (_a = {}, _a[key] = fn(scope), _a)));
+        return (__assign({}, state, (_a = {}, _a[key] = fn(state), _a)));
     };
 }
 exports.add = add;
 function omit(fn) {
-    return function (scope) { return rxjs_1.from(fn(scope)).pipe(operators_1.mapTo(scope)); };
+    return function (state) { return rxjs_1.from(fn(state)).pipe(operators_1.mapTo(state)); };
 }
 exports.omit = omit;

@@ -49,7 +49,7 @@ function upgradeFile(filePath, outFilePath) {
                     return [4 /*yield*/, fs_extra_1.readFile(filePath, 'UTF-8')];
                 case 1:
                     text = _a.sent();
-                    transformer = /ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
+                    transformer = /\.ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
                     data = transformer(text);
                     return [4 /*yield*/, writeFile_1.writeFile(outFilePath, data)];
                 case 2: return [2 /*return*/, _a.sent()];

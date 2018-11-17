@@ -35,39 +35,55 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs_1 = require("fs");
+var fs_extra_1 = require("fs-extra");
 var glob = require("glob");
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
-function getFileList$(path) {
-    return rxjs_1.from(getFileList(path)).pipe(operators_1.mergeMap(function (filePaths) { return filePaths; }));
-}
-exports.getFileList$ = getFileList$;
 function getFileList(path) {
+    return rxjs_1.defer(function () { return getPattern(path); }).pipe(operators_1.mergeMap(globFiles));
+}
+exports.getFileList = getFileList;
+function getPattern(path) {
     return __awaiter(this, void 0, void 0, function () {
-        var isDir, _a, pattern;
+        var _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _a = fs_1.existsSync(path);
-                    if (!_a) return [3 /*break*/, 2];
-                    return [4 /*yield*/, checkDir(path)];
-                case 1:
-                    _a = (_b.sent());
-                    _b.label = 2;
+                    if (!checkExtension(path)) return [3 /*break*/, 1];
+                    _a = path;
+                    return [3 /*break*/, 3];
+                case 1: return [4 /*yield*/, checkDir(path)];
                 case 2:
-                    isDir = _a;
-                    pattern = isDir ? path + "/**/*.component.?(ts|html)" :
-                        /\.(ts|html)$/.test(path) ? path :
-                            path + ".?(ts|html)";
-                    return [2 /*return*/, getAllFiles(pattern)];
+                    _a = (_b.sent()) ? path + "/**/*.component.?(ts|html)" :
+                        path + ".?(ts|html)";
+                    _b.label = 3;
+                case 3: return [2 /*return*/, _a];
             }
         });
     });
 }
-function checkDir(path) {
-    return rxjs_1.bindNodeCallback(fs_1.lstat)(path).pipe(operators_1.map(function (stat) { return stat.isDirectory(); })).toPromise();
+function checkExtension(path) {
+    return /\.(ts|html)$/.test(path);
 }
-function getAllFiles(pattern) {
-    return rxjs_1.bindNodeCallback(glob)(pattern, { nodir: true }).toPromise();
+function checkDir(path) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, fs_extra_1.pathExists(path)];
+                case 1:
+                    _a = (_b.sent());
+                    if (!_a) return [3 /*break*/, 3];
+                    return [4 /*yield*/, fs_extra_1.lstat(path)];
+                case 2:
+                    _a = (_b.sent()).isDirectory();
+                    _b.label = 3;
+                case 3: return [2 /*return*/, _a];
+            }
+        });
+    });
+}
+function globFiles(pattern) {
+    var glob$ = rxjs_1.bindNodeCallback(glob);
+    return glob$(pattern, { nodir: true }).pipe(operators_1.mergeAll());
 }
