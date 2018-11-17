@@ -57,9 +57,9 @@ function getFileList(path) {
                     _b.label = 2;
                 case 2:
                     isDir = _a;
-                    pattern = isDir
-                        ? path + "/**/*.component.?(ts|html)"
-                        : /(\.\w{2,4})$/.test(path) ? path : path + ".?(ts|html)";
+                    pattern = isDir ? path + "/**/*.component.?(ts|html)" :
+                        /\.(ts|html)$/.test(path) ? path :
+                            path + ".?(ts|html)";
                     return [2 /*return*/, getAllFiles(pattern)];
             }
         });

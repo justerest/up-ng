@@ -11,9 +11,12 @@ export function getFileList$(path: string): Observable<string> {
 
 async function getFileList(path: string): Promise<string[]> {
     const isDir = existsSync(path) && await checkDir(path);
-    const pattern = isDir
-        ? `${path}/**/*.component.?(ts|html)`
-        : /(\.\w{2,4})$/.test(path) ? path : `${path}.?(ts|html)`;
+
+    const pattern =
+        isDir ? `${path}/**/*.component.?(ts|html)` :
+            /\.(ts|html)$/.test(path) ? path :
+                `${path}.?(ts|html)`;
+
     return getAllFiles(pattern);
 }
 
