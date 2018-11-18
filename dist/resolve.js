@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var options_1 = require("./options");
+/**
+ * @returns ouput file path
+ */
 exports.resolve = options_1.OPTIONS.out ? resolveOutPath : function (path) { return path; };
 function resolveOutPath(filePath) {
     var pathFromCurDir = filePath.replace(/^(\.\.\/)+/, '');

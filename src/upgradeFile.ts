@@ -1,17 +1,21 @@
+import chalk from 'chalk';
 import { readFile } from 'fs-extra';
 import { transformHtml } from './transformHtml';
 import { transformTs } from './transformTs';
 import { writeFile } from './writeFile';
 
-export async function upgradeFile(filePath: string, outFilePath: string): Promise<void> {
+/**
+ * @returns success status of operation
+ */
+export async function upgradeFile(filePath: string, outFilePath: string): Promise<boolean> {
     try {
-        const text = await readFile(filePath, 'UTF-8');
-        const transformer = /\.ts$/.test(filePath) ? transformTs : transformHtml;
-        const data = transformer(text);
-        return await writeFile(outFilePath, data);
+        const data = await readFile(filePath, 'UTF-8');
+        const transform = /\.ts$/.test(filePath) ? transformTs : transformHtml;
+        const transformedData = transform(data);
+        await writeFile(outFilePath, transformedData);
+        return true;
     }
     catch (e) {
-        console.error(filePath, outFilePath);
-        console.error(e);
+        return false;
     }
 }

@@ -15,27 +15,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
 function scope(key) {
-    return operators_1.map(function (data) {
+    return function (data) {
         var _a;
         return (_a = {}, _a[key] = data, _a);
-    });
-}
-exports.scope = scope;
-function set(key, fn) {
-    return function (state) { return rxjs_1.from(fn(state)).pipe(operators_1.map(function (response) {
-        var _a;
-        return (__assign({}, state, (_a = {}, _a[key] = response, _a)));
-    })); };
-}
-exports.set = set;
-function add(key, fn) {
-    return function (state) {
-        var _a;
-        return (__assign({}, state, (_a = {}, _a[key] = fn(state), _a)));
     };
 }
-exports.add = add;
-function omit(fn) {
-    return function (state) { return rxjs_1.from(fn(state)).pipe(operators_1.mapTo(state)); };
+exports.scope = scope;
+function set(key, prop1, prop2, fn) {
+    var composedFn = composeFn(prop1, prop2, fn);
+    return function (data) {
+        var _a;
+        return (__assign({}, data, (_a = {}, _a[key] = composedFn(data), _a)));
+    };
 }
-exports.omit = omit;
+exports.set = set;
+function set$(key, prop1, prop2, fn) {
+    var composedFn = composeFn(prop1, prop2, fn);
+    return function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.map(function (response) {
+        var _a;
+        return (__assign({}, data, (_a = {}, _a[key] = response, _a)));
+    })); };
+}
+exports.set$ = set$;
+function omit$(prop1, prop2, fn) {
+    var composedFn = composeFn(prop1, prop2, fn);
+    return function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.mapTo(data)); };
+}
+exports.omit$ = omit$;
+function composeFn(prop1, prop2, fn) {
+    return typeof prop1 === 'function' ? function (data) { return prop1(data); } :
+        typeof prop2 === 'function' ? function (data) { return prop2(data[prop1]); } :
+            function (data) { return fn(data[prop1], data[prop2]); };
+}

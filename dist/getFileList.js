@@ -39,6 +39,9 @@ var fs_extra_1 = require("fs-extra");
 var glob = require("glob");
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
+/**
+ * @returns observable collection of file paths
+ */
 function getFileList(path) {
     return rxjs_1.defer(function () { return getPattern(path); }).pipe(operators_1.mergeMap(globFiles));
 }

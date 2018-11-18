@@ -39,25 +39,28 @@ var fs_extra_1 = require("fs-extra");
 var transformHtml_1 = require("./transformHtml");
 var transformTs_1 = require("./transformTs");
 var writeFile_1 = require("./writeFile");
+/**
+ * @returns success status of operation
+ */
 function upgradeFile(filePath, outFilePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var text, transformer, data, e_1;
+        var data, transform, transformedData, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
                     return [4 /*yield*/, fs_extra_1.readFile(filePath, 'UTF-8')];
                 case 1:
-                    text = _a.sent();
-                    transformer = /\.ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
-                    data = transformer(text);
-                    return [4 /*yield*/, writeFile_1.writeFile(outFilePath, data)];
-                case 2: return [2 /*return*/, _a.sent()];
+                    data = _a.sent();
+                    transform = /\.ts$/.test(filePath) ? transformTs_1.transformTs : transformHtml_1.transformHtml;
+                    transformedData = transform(data);
+                    return [4 /*yield*/, writeFile_1.writeFile(outFilePath, transformedData)];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/, true];
                 case 3:
                     e_1 = _a.sent();
-                    console.error(filePath, outFilePath);
-                    console.error(e_1);
-                    return [3 /*break*/, 4];
+                    return [2 /*return*/, false];
                 case 4: return [2 /*return*/];
             }
         });

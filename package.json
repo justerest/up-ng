@@ -14,7 +14,9 @@
     "start:dev": "npm run build && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "pre-commit": ["build:commit"],
+  "pre-commit": [
+    "build:commit"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/justerest/up-ng.git"

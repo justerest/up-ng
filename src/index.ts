@@ -1,22 +1,28 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { from } from 'rxjs';
-import { finalize, map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { getFileList } from './getFileList';
 import { OPTIONS } from './options';
 import { resolve } from './resolve';
 import { upgradeFile } from './upgradeFile';
-import { add, omit, scope, set } from './utils';
+import { scope, set, set$ } from './utils';
 
 from(OPTIONS.paths)
     .pipe(
-        scope('pattern'),
-        mergeMap(set('filePath', ({ pattern }) => getFileList(pattern))),
-        map(add('outFilePath', ({ filePath }) => resolve(filePath))),
-        mergeMap(omit(({ filePath, outFilePath }) => upgradeFile(filePath, outFilePath))),
-        finalize(() => console.log(`\n${chalk.bgCyan(chalk.bold(' FINISH '))}\n`)),
+        map(scope('pattern')),
+        mergeMap(set$('filePath', 'pattern', getFileList)),
+        map(set('outFilePath', 'filePath', resolve)),
+        mergeMap(set$('isSuccess', 'filePath', 'outFilePath', upgradeFile)),
     )
-    .subscribe(({ filePath, outFilePath }) => {
-        console.log(chalk.greenBright('\n UPGRADE '), chalk.yellow(filePath), '->');
-        console.log(chalk.yellowBright(outFilePath));
+    .subscribe({
+        next({ filePath, outFilePath, isSuccess }) {
+            const status = isSuccess ? chalk.greenBright('UPGRADE') : chalk.bgRedBright('FAIL');
+            console.log(`\n${status}:`);
+            console.log(chalk.yellow(filePath), '->');
+            console.log(chalk.yellowBright(outFilePath));
+        },
+        complete() {
+            console.log(`\n${chalk.bgCyan(chalk.bold(' FINISH '))}\n`);
+        },
     });

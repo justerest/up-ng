@@ -3,6 +3,9 @@ import glob = require('glob');
 import { bindNodeCallback, defer, Observable } from 'rxjs';
 import { mergeAll, mergeMap } from 'rxjs/operators';
 
+/**
+ * @returns observable collection of file paths
+ */
 export function getFileList(path: string): Observable<string> {
     return defer(() => getPattern(path)).pipe(mergeMap(globFiles));
 }
