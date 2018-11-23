@@ -14,22 +14,22 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var chalk_1 = require("chalk");
 var rxjs_1 = require("rxjs");
+var rxjs_set_operators_1 = require("rxjs-set-operators");
 var getFileList_1 = require("./getFileList");
 var options_1 = require("./options");
 var resolve_1 = require("./resolve");
 var upgradeFile_1 = require("./upgradeFile");
-var utils_1 = require("./utils");
 rxjs_1.from(options_1.OPTIONS.paths)
-    .pipe(utils_1.setAll('pattern'), utils_1.mergeSet('filePath', function (_a) {
+    .pipe(rxjs_set_operators_1.setAll('pattern'), rxjs_set_operators_1.mergeSet('filePath', function (_a) {
     var pattern = _a.pattern;
     return getFileList_1.getFileList(pattern);
-}), utils_1.set('outFilePath', function (_a) {
+}), rxjs_set_operators_1.set('outFilePath', function (_a) {
     var filePath = _a.filePath;
     return resolve_1.resolve(filePath);
-}), utils_1.mergeSet('isSuccess', function (_a) {
+}), rxjs_set_operators_1.mergeSet('isSuccess', function (_a) {
     var filePath = _a.filePath, outFilePath = _a.outFilePath;
     return upgradeFile_1.upgradeFile(filePath, outFilePath);
-}), utils_1.scanSet('counter', function (acc, _a) {
+}), rxjs_set_operators_1.scanSet('counter', function (acc, _a) {
     var pattern = _a.pattern;
     var _b;
     var index = acc[pattern] || 0;

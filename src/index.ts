@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { from } from 'rxjs';
+import { mergeSet, scanSet, set, setAll } from 'rxjs-set-operators';
 import { getFileList } from './getFileList';
 import { OPTIONS } from './options';
 import { resolve } from './resolve';
 import { upgradeFile } from './upgradeFile';
-import { mergeSet, scanSet, set, setAll } from './utils';
 
 from(OPTIONS.paths)
     .pipe(
