@@ -1,20 +1,45 @@
 #!/usr/bin/env node
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var chalk_1 = require("chalk");
 var rxjs_1 = require("rxjs");
-var operators_1 = require("rxjs/operators");
 var getFileList_1 = require("./getFileList");
 var options_1 = require("./options");
 var resolve_1 = require("./resolve");
 var upgradeFile_1 = require("./upgradeFile");
 var utils_1 = require("./utils");
 rxjs_1.from(options_1.OPTIONS.paths)
-    .pipe(operators_1.map(utils_1.scope('pattern')), operators_1.mergeMap(utils_1.set$('filePath', 'pattern', getFileList_1.getFileList)), operators_1.map(utils_1.set('outFilePath', 'filePath', resolve_1.resolve)), operators_1.mergeMap(utils_1.set$('isSuccess', 'filePath', 'outFilePath', upgradeFile_1.upgradeFile)))
+    .pipe(utils_1.setAll('pattern'), utils_1.mergeSet('filePath', function (_a) {
+    var pattern = _a.pattern;
+    return getFileList_1.getFileList(pattern);
+}), utils_1.set('outFilePath', function (_a) {
+    var filePath = _a.filePath;
+    return resolve_1.resolve(filePath);
+}), utils_1.mergeSet('isSuccess', function (_a) {
+    var filePath = _a.filePath, outFilePath = _a.outFilePath;
+    return upgradeFile_1.upgradeFile(filePath, outFilePath);
+}), utils_1.scanSet('counter', function (acc, _a) {
+    var pattern = _a.pattern;
+    var _b;
+    var index = acc[pattern] || 0;
+    return (__assign({}, acc, (_b = {}, _b[pattern] = index + 1, _b)));
+}, {}))
     .subscribe({
     next: function (_a) {
-        var filePath = _a.filePath, outFilePath = _a.outFilePath, isSuccess = _a.isSuccess;
+        var filePath = _a.filePath, outFilePath = _a.outFilePath, isSuccess = _a.isSuccess, counter = _a.counter, pattern = _a.pattern;
         var status = isSuccess ? chalk_1.default.greenBright('UPGRADE') : chalk_1.default.bgRedBright('FAIL');
+        console.log(counter[pattern]);
         console.log("\n" + status + ":");
         console.log(chalk_1.default.yellow(filePath), '->');
         console.log(chalk_1.default.yellowBright(outFilePath));

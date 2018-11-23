@@ -1,34 +1,40 @@
 // tslint:disable:max-line-length
-import { from, ObservableInput } from 'rxjs';
-import { map, mapTo } from 'rxjs/operators';
+import { from, ObservableInput, OperatorFunction } from 'rxjs';
+import { map, mapTo, mergeMap, scan } from 'rxjs/operators';
 
-export function scope<T, K extends string>(key: K): (data: T) => { [P in K]: T; };
-export function scope(key: string) {
-    return (data: any) => ({ [key]: data });
+export function setAll<T, K extends string | symbol>(key: K): OperatorFunction<T, { [P in K]: T; }>;
+export function setAll(key: string) {
+    return map((data: any) => ({ [key]: data }));
 }
 
-export function set<T, R, K extends string>(key: K, fn: (a1: T) => R): (data: T) => { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; };
-export function set<T, R, K extends string, P1 extends keyof T>(key: K, prop1: P1, fn: (a1: T[P1]) => R): (data: T) => { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; };
-export function set<T, R, K extends string, P1 extends keyof T, P2 extends keyof T>(key: K, prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => R): (data: T) => { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; };
+export function set<T, R, K extends string | symbol>(key: K, fn: (a1: T) => R): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function set<T, R, K extends string | symbol, P1 extends keyof T>(key: K, prop1: P1, fn: (a1: T[P1]) => R): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function set<T, R, K extends string | symbol, P1 extends keyof T, P2 extends keyof T>(key: K, prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => R): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
 export function set(key: string, prop1: any, prop2?: any, fn?: any) {
     const composedFn = composeFn(prop1, prop2, fn);
-    return (data: any) => ({ ...data, [key]: composedFn(data) });
+    return map((data: any) => ({ ...data, [key]: composedFn(data) }));
 }
 
-export function set$<T, R, K extends string>(key: K, fn: (a1: T) => ObservableInput<R>): (data: T) => ObservableInput<{ [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
-export function set$<T, R, K extends string, P1 extends keyof T>(key: K, prop1: P1, fn: (a1: T[P1]) => ObservableInput<R>): (data: T) => ObservableInput<{ [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
-export function set$<T, R, K extends string, P1 extends keyof T, P2 extends keyof T>(key: K, prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => ObservableInput<R>): (data: T) => ObservableInput<{ [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
-export function set$(key: string, prop1: any, prop2?: any, fn?: any) {
-    const composedFn = composeFn(prop1, prop2, fn);
-    return (data: any) => from(composedFn(data)).pipe(map((response) => ({ ...data, [key]: response })));
+export function scanSet<T, R, K extends string | symbol>(key: K, fn: (a1: R, a2: T) => R, seed: R): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function scanSet(key: string, fn: any, seed: any) {
+    const composedFn = fn;
+    return scan((res: any, data: any) => ({ ...data, [key]: composedFn(res[key], data) }), { [key]: seed });
 }
 
-export function omit$<T, R>(fn: (state: T) => ObservableInput<R>): (state: T) => ObservableInput<T>;
-export function omit$<T, R, P1 extends keyof T>(prop1: P1, fn: (a1: T[P1]) => ObservableInput<R>): (data: T) => ObservableInput<T>;
-export function omit$<T, R, P1 extends keyof T, P2 extends keyof T>(prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => ObservableInput<R>): (data: T) => ObservableInput<T>;
-export function omit$(prop1: any, prop2?: any, fn?: any) {
+export function mergeSet<T, R, K extends string | symbol>(key: K, fn: (a1: T) => ObservableInput<R>): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function mergeSet<T, R, K extends string | symbol, P1 extends keyof T>(key: K, prop1: P1, fn: (a1: T[P1]) => ObservableInput<R>): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function mergeSet<T, R, K extends string | symbol, P1 extends keyof T, P2 extends keyof T>(key: K, prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => ObservableInput<R>): OperatorFunction<T, { [P in keyof (T & { [F in K]: R; })]: (T & { [F in K]: R; })[P]; }>;
+export function mergeSet(key: string, prop1: any, prop2?: any, fn?: any) {
     const composedFn = composeFn(prop1, prop2, fn);
-    return (data: any) => from(composedFn(data)).pipe(mapTo(data));
+    return mergeMap((data: any) => from(composedFn(data)).pipe(map((response) => ({ ...data, [key]: response }))));
+}
+
+export function mergeTap<T, R>(fn: (state: T) => ObservableInput<R>): OperatorFunction<T, T>;
+export function mergeTap<T, R, P1 extends keyof T>(prop1: P1, fn: (a1: T[P1]) => ObservableInput<R>): OperatorFunction<T, T>;
+export function mergeTap<T, R, P1 extends keyof T, P2 extends keyof T>(prop1: P1, prop2: P2, fn: (a1: T[P1], a2: T[P2]) => ObservableInput<R>): OperatorFunction<T, T>;
+export function mergeTap(prop1: any, prop2?: any, fn?: any) {
+    const composedFn = composeFn(prop1, prop2, fn);
+    return mergeMap((data: any) => from(composedFn(data)).pipe(mapTo(data)));
 }
 
 function composeFn(prop1: any, prop2: any, fn: any): any {

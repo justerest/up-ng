@@ -14,34 +14,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:max-line-length
 var rxjs_1 = require("rxjs");
 var operators_1 = require("rxjs/operators");
-function scope(key) {
-    return function (data) {
+function setAll(key) {
+    return operators_1.map(function (data) {
         var _a;
         return (_a = {}, _a[key] = data, _a);
-    };
+    });
 }
-exports.scope = scope;
+exports.setAll = setAll;
 function set(key, prop1, prop2, fn) {
     var composedFn = composeFn(prop1, prop2, fn);
-    return function (data) {
+    return operators_1.map(function (data) {
         var _a;
         return (__assign({}, data, (_a = {}, _a[key] = composedFn(data), _a)));
-    };
+    });
 }
 exports.set = set;
-function set$(key, prop1, prop2, fn) {
+function scanSet(key, fn, seed) {
+    var _a;
+    var composedFn = fn;
+    return operators_1.scan(function (res, data) {
+        var _a;
+        return (__assign({}, data, (_a = {}, _a[key] = composedFn(res[key], data), _a)));
+    }, (_a = {}, _a[key] = seed, _a));
+}
+exports.scanSet = scanSet;
+function mergeSet(key, prop1, prop2, fn) {
     var composedFn = composeFn(prop1, prop2, fn);
-    return function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.map(function (response) {
+    return operators_1.mergeMap(function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.map(function (response) {
         var _a;
         return (__assign({}, data, (_a = {}, _a[key] = response, _a)));
-    })); };
+    })); });
 }
-exports.set$ = set$;
-function omit$(prop1, prop2, fn) {
+exports.mergeSet = mergeSet;
+function mergeTap(prop1, prop2, fn) {
     var composedFn = composeFn(prop1, prop2, fn);
-    return function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.mapTo(data)); };
+    return operators_1.mergeMap(function (data) { return rxjs_1.from(composedFn(data)).pipe(operators_1.mapTo(data)); });
 }
-exports.omit$ = omit$;
+exports.mergeTap = mergeTap;
 function composeFn(prop1, prop2, fn) {
     return typeof prop1 === 'function' ? function (data) { return prop1(data); } :
         typeof prop2 === 'function' ? function (data) { return prop2(data[prop1]); } :
